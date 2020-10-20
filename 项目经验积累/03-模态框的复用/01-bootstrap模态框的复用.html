@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 一定要注意!!!先导入jq再导入bootstrap 不然会报错 -->
+    <script src="./bootstrap/js/jquery-1.12.4.min.js"></script>
+    <script src="./bootstrap/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css">
+</head>
+
+<body>
+
+    <!-- 1. 模态框弹出方法:  -->
+    <!-- 1.1 行内调用模态框 -->
+    <button class="btn btn-info" data-toggle="modal" data-target="#myModal">新增</button><br>
+    <button class="btn btn-success" data-toggle="modal" data-target="#myModal">编辑</button><br>
+
+
+
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="exampleModalLabel">New message</h4>
+                </div>
+                <div class="modal-body">
+                    <form>
+                        <div class="form-group">
+                            <label for="recipient-name" class="control-label">Recipient:</label>
+                            <input type="text" class="form-control" id="recipient-name">
+                        </div>
+                        <div class="form-group">
+                            <label for="message-text" class="control-label">Message:</label>
+                            <input class="form-control" id="message-text"></input>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-cancel" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary">Send message</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        
+        $(function () {
+            // 1.2 jq调用 
+            // $('#myModal').modal();
+
+
+            
+            // 2. 模态框复用实现不同逻辑
+            // 难点: 模态框复用和实现业务逻辑不同
+            // 2.1 模态框复用
+            // 解决方法: 自定义行内属性调用模态框
+            $('#myModal').on('show.bs.modal', function (e) {
+                // 2.2根据显示不同的按钮名字, 做出不同的请求
+                // 解决方法: 注册弹出事件, 获取事件触发源e.relatedTarget
+               
+                // e.relatedTarget是dom对象, 即button以及他的内容, 要用dom方法, 
+                // this则是当前注册事件的事件源, 即#myModal这个模态框
+
+                if (e.relatedTarget.innerText == '新增') {
+                    // 2.2.1 新增
+                    $('.modal-body>form')[0].reset();
+                    $('.btn-primary').text('新增').addClass('btn-info').removeClass('btn-success');
+                } else {
+                    // 2.2.2 编辑
+                    $('.btn-primary').text('编辑').addClass('btn-success').removeClass('btn-info');
+                }
+
+            });
+
+            // 3. 模态框取消按钮: 清空表单
+            $('.btn-cancel').on('click', function(){
+                $('.modal-body>form')[0].reset();
+            });
+
+            // 4. 点击确认按钮提交ajax请求
+            // 注意根据不同的按钮名字实现不同的功能
+            $('.btn-primary').on('click', function () {
+                if ($(this).text() == '新增') {
+                    alert('发送新增ajax');
+                } else {
+                    alert('发送编辑ajax');
+                }
+            });
+
+        })
+    </script>
+
+
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+
+    <script src="./jquery-1.12.4.min.js"></script>
+    <style>
+        iframe{
+            width: 800px;
+            height: 600px;
+            /* iframe标签是一个行内块元素 */
+            display: block;
+            margin: 50px auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- 
+        1.iframe标签作用：嵌套网页
+        2.iframe标签嵌套多页面原理 ： a标签的target属性使用 
+            target : a标签的href跳转方式
+                _self : 当前页面打开网页
+                _blank : 新页面打开网页
+                framename : 在指定(name属性值)的iframe标签里面打开网页
+        3.使用流程
+            3.1 给a标签设置href : 决定点击a打开哪一个页面
+            3.2 给a标签设置target : 决定a标签在什么位置打开 (设置为iframe标签的name属性值)
+
+     -->
+    <a href="./index1.html" target="myframe">页面1</a>
+    <a href="./index2.html" target="myframe">页面2</a>
+    <a id="link" href="./index3.html" target="myframe">页面3</a>
+    
+    <iframe src="./index1.html" frameborder="0" name="myframe"></iframe>
+
+    <script>
+        /* 
+        1.a标签有两种事件 ： 第一种默认跳转事件  第二种：注册事件
+
+        2.$().click()  相当于 原生 link.onclick()   : 只能触发注册事件，无法触发默认事件
+
+        3.$()[0].click() : 触发 注册事件 + 默认事件
+        */
+
+        $('#link').click(function(){
+            $(this).css('border','10px solid pink');
+        });
+
+    </script>
+</body>
+</html>

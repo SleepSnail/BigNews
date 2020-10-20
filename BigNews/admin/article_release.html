@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>文章列表</title>
+    <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/iconfont.css">
+    <link rel="stylesheet" href="css/main.css">
+    <!-- jq -->
+    <script src="./libs/jquery-1.12.4.min.js"></script>
+    <!-- 模板引擎 -->
+    <script src="./libs/template-web.js"></script>
+
+    <!-- 引入插件 -->
+    <link rel="stylesheet" href="./libs/jedate/css/jedate.css">
+    <link rel="stylesheet" href="./libs/jedate/css/jeDate-test.css">
+    <script src="./libs/jedate/js/jedate.js"></script>
+
+    <script src="./libs/wangEditor.min.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="common_title">
+            文章编辑
+        </div>
+        <div class="container-fluid common_con">
+            <form class="form-horizontal article_form" id="form">
+                <div class="form-group">
+                    <label for="inputTitle" class="col-sm-2 control-label">文章标题：</label>
+                    <div class="col-sm-10">
+                        <input type="text" name="title" class="form-control title" id="inputTitle" value="文章标题文字">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputCover" class="col-sm-2 control-label">文章封面：</label>
+                    <div class="col-sm-10">
+                        <img src="images/pic06.jpg" class="article_cover">
+                        <input name="cover" type="file" id="inputCover">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputCategory" class="col-sm-2 control-label">文章类别：</label>
+                    <div class="col-sm-4">
+                        <select class="form-control category" name="categoryId">
+                            <option>类别一</option>
+                            <option>类别二</option>
+                            <option>类别三</option>
+                            <option selected>类别四</option>
+                            <option>类别五</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">发布时间：</label>
+                    <div class="col-sm-4">
+                        <input type="text" class="jeinput" id="testico" name="date" placeholder="YYYY-MM-DD">
+                        <div class="icons jebtns" onclick="jeDate('#testico',{trigger:false,format: 'YYYY-MM-DD', zIndex:100000})">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
+                    <div class="col-sm-10">
+                        <div id="div1"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-success btn-release">发布</button>
+                        <button type="submit" class="btn btn-default btn-draft">存为草稿</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <script src="./libs/http.js"></script>
+
+    <!-- 2.1 类别模板 -->
+    <script id="ctg_list" type="text/html">
+        {{each data v}}
+        <option value="{{v.id}}">{{v.name}}</option>
+        {{/each}}
+    </script>
+    <script>
+        $(function () {
+            // 1.加载插件
+            // 1.1 日期插件
+            jeDate("#testico", {
+                trigger: 'click',
+                format: "YYYY-MM-DD",
+                isShow: true, //是否显示日历面板  
+                multiPane: true, //false :双面板  true:单面板
+                isinitVal: true, //显示默认时间
+                // isShow:true,
+                theme: {
+                    bgcolor: "#ffff00",
+                    color: "#ff0000",
+                    pnColor: "#ee2388"
+                },
+                festival: true, //是否显示农历
+                zIndex: 10001
+
+            });
+
+            // 1.2 富文本插件
+            const E = window.wangEditor
+            const editor = new E('#div1')
+            editor.create()
+
+            // 2. 写好类别模板option类别选择, ajax加载
+            $.ajax({
+                url:BigNew.category_list,
+                type:'get',
+                dataType:'json',
+               
+                success: function(backData){
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        $('.category').html(template('ctg_list', backData));
+                        
+                    }
+                }
+            });
+
+            // 3. 给按钮设置点击事件
+            $('.btn-release, .btn-draft').on('click', function (e) {
+                e.preventDefault();
+                console.log(1111);
+
+                let fd = new FormData($('form')[0]);
+
+                let state = $(this).text() == '发布' ? '已发布':'草稿';
+                console.log(state);
+                fd.append('state', state);
+                fd.append('content', editor.txt.html());
+
+                console.log(fd.title);
+                console.log(fd.cover);
+                console.log(fd.category);
+                console.log(fd.date);
+                console.log(fd.content);
+                console.log(fd.state);
+                
+                $.ajax({
+                    url:BigNew.article_publish,
+                    type:'post',
+                    data:fd,
+
+                    // 一定要记得, 不然报错: jquery-1.12.4.min.js:11 Uncaught TypeError: Illegal invocation
+                    contentType: false,
+                    processData: false,
+                    success: function(backData){
+                        
+                        console.log(backData);
+                        if(backData.code == 200) {
+                            alert(backData.msg);
+                            window.location.href = './article_list.html';
+                            // window.history.back();
+                        }
+                    }
+                });
+            })
+
+            // 4. 图片预览
+            $('#inputCover').on('change', function(){
+                
+                let file1 = this.files[0];
+                url = URL.createObjectURL(file1);
+                $('.article_cover').attr('src', url);
+            });
+
+
+
+            
+            
+        
+
+
+
+
+
+
+
+        });
+    </script>
+</body>
+
+</html>

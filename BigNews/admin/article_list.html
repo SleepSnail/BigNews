@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>文章列表</title>
+    <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/iconfont.css">
+    <link rel="stylesheet" href="./css/main.css">
+    <script src="./libs/jquery-1.12.4.min.js"></script>
+    <script src="./libs/bootstrap/js/bootstrap.min.js"></script>
+    <script src="./libs/jquery.twbsPagination.js"></script>
+    <!-- 引入模板引擎js文件 -->
+    <script src="./libs/template-web.js"></script>
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="common_title">
+            文章列表
+        </div>
+        <div class="container-fluid common_con">
+            <div class="row opt_btns">
+                <div class="col-xs-6">
+                    <form class="form-inline">
+                        <select id="selCategory" name="" class="form-control input-sm">
+                            <option value="">所有分类</option>
+                            <option>未分类</option>
+                            <option>奇趣事</option>
+                            <option>会生活</option>
+                            <option>爱旅行</option>
+                        </select>
+                        <select id="selStatus" name="" class="form-control input-sm">
+                            <option value="">所有状态</option>
+                            <option value="草稿">草稿</option>
+                            <option value="已发布">已发布</option>
+                        </select>
+                        <button id="btnSearch" class="btn btn-default btn-sm">筛选</button>
+                    </form>
+                </div>
+                <div class="col-xs-6">
+                    <a href="article_release.html" class="btn btn-success btn-sm pull-right" id="release_btn">发表文章</a>
+                </div>
+            </div>
+            <table class="table table-striped table-bordered table-hover mp20">
+                <thead>
+                    <tr>
+                        <th>标题</th>
+                        <th>作者</th>
+                        <th>分类</th>
+                        <th class="text-center">发表时间</th>
+                        <th class="text-center">状态</th>
+                        <th class="text-center" width="100">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>王积千造统最头</td>
+                        <td>杰克</td>
+                        <td>奇趣事</td>
+                        <td class="text-center">2017-06-08 07:08:46</td>
+                        <td class="text-center">已发布</td>
+                        <td class="text-center">
+                            <a href="article_edit.html" class="btn btn-default btn-xs btn-edit">编辑</a>
+                            <a href="javascript:void(0);" class="btn btn-danger btn-xs btn-delete">删除</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="row text-center">
+                <ul id="pagination-demo" class="pagination-sm"></ul>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="./libs/http.js"></script>
+
+
+    <!-- 文章类别模板 -->
+    <script id="ctg_list" type="text/html">
+        <!-- 注意: 
+            这里一定要写value="", 不写value属性默认选中innerText, 写value属性默认选中value属性的值""也算 -->
+    <option value="">所有分类</option>
+    {{each data v}}
+    <option value="{{v.id}}">{{v.name}}</option>
+    {{/each}}
+    </script>
+
+    <!-- 内容模板 -->
+    <script id="article_list" type="text/html">
+        {{each data.data v}}
+
+        <tr>
+            <td>{{v.title}}</td>
+            <td>{{v.author}}</td>
+            <td>{{v.category}}</td>
+            <td class="text-center">{{v.date}}</td>
+            <td class="text-center">{{v.state}}</td>
+            <td class="text-center">
+                <a href="article_edit.html?id={{v.id}}" class="btn btn-default btn-xs btn-edit">编辑</a>
+                <a href="javascript:void(0);" data-id="{{v.id}}" class="btn btn-danger btn-xs btn-delete">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+
+    <script>
+        $(function () {
+            // 1. 页面加载, 先加载请求分类列表
+            $.ajax({
+                url: BigNew.category_list,
+                type: 'get',
+                dataType: 'json',
+
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        $('#selCategory').html(template('ctg_list', backData));
+                    }
+                }
+            });
+
+            // 错误: 要先注册, 才能触发点击事件
+            // $('#btnSearch').click();
+
+
+            // 3. 给筛选点击事件的注册事件
+            $('#btnSearch').on('click', function (e) {
+                // 在表单中的按钮都要注意取消默认跳转事件
+                e.preventDefault();
+                $.ajax({
+                    url: BigNew.article_query,
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        type: $('#selCategory').val(),
+                        state: $('#selStatus').val(),
+                        page: 1,
+                        perpage: 10
+                    },
+                    success: function (backData) {
+                        console.log(backData);
+                        $('tbody').html(template('article_list', backData));
+
+                        // 分页插件
+                        // 1. 先销毁旧插件
+                        $('#pagination-demo').twbsPagination('destroy');
+                        // 2. 加载新插件
+                        $('#pagination-demo').twbsPagination({
+                            totalPages: backData.data.totalPage,
+                            visiblePages: 10,
+                            startPage: 1,
+                            first: '首页',
+                            last: '尾页',
+                            prev: '上一页',
+                            next: '下一页',
+                            loop: true,
+                            onPageClick: function (event, page) {
+                                $('#page-content').text('Page ' + page);
+                                console.log('当前点击页数:' + page);
+                                // console.log(`当前点击页数${page}`);
+
+
+                                //加载对应页数
+                                getArticleList(page);
+                            }
+                        });
+
+                    }
+                });
+
+            });
+
+
+
+            // 4. 函数: 获取当前页面的页数, 并渲染当前页面
+            function getArticleList(currentPage) {
+                $.ajax({
+                    url: BigNew.article_query,
+                    type: 'get',
+                    dataType: 'json',
+                    data: {
+                        type: $('#selCategory').val(),
+                        state: $('#selStatus').val(),
+                        page: currentPage,
+                        perpage: 10
+                    },
+                    success: function (backData) {
+                        console.log(backData);
+                        //模板引擎渲染页面
+                        $('table>tbody').html(template('article_list', backData));
+                    }
+                });
+            }
+
+
+
+            // 2. 给整个页面渲染文章
+            $('#btnSearch').click();
+
+
+            // 5. 更改父页面的内容, 给选中的导航添加高亮
+            // 注意: 
+
+            $('#release_btn').on('click', function () {
+                $('.level02>li:eq(1)', window.parent.document).click();
+            });
+
+
+            // 6. 删除按钮
+
+
+            $('tbody').on('click', '.btn-delete', function () {
+                if (confirm('是否要删除文章?')) {
+                    let id = $('.btn-delete').attr('data-id');
+                    console.log(id);
+                    console.log(111);
+                    $.ajax({
+                        url: BigNew.article_delete,
+                        type: 'post',
+
+                        data: {
+                            id: id
+                        },
+                        success: function (backData) {
+                            console.log(backData);
+                            if (backData.code == 204) {
+                                alert(backData.msg);
+                                window.location.reload();
+                            }
+                        }
+                    });
+                }
+            })
+
+        });
+    </script>
+</body>
+
+</html>

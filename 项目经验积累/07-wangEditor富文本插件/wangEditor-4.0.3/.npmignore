@@ -1,0 +1,12 @@
+.github/
+.vscode
+build/
+doc/
+docs/
+examples/
+test/
+attachment/
+TODO.md
+ISSUE.md
+upload-files/
+server/

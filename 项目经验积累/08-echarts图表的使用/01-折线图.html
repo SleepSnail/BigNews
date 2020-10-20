@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 图表使用三部曲 -->
+
+    <!-- 1. 导入js文件 -->
+    <script src="./echarts.js"></script>
+</head>
+
+<body>
+    <!-- 2. html结构 -->
+    <!-- 为 ECharts 准备一个具备大小（宽高）的 DOM -->
+    <div id="main" style="width: 600px;height:400px;"></div>
+
+
+    <!-- 3. js样式 -->
+    <script type="text/javascript">
+        // 基于准备好的dom，初始化echarts实例
+        var myChart = echarts.init(document.getElementById('main'));
+
+        // 指定图表的配置项和数据
+        option = {
+            legend: {
+                top: '5%',
+
+
+                // 这个值和下面的series的name一支才会一样
+                data: ['新增文章']
+            },
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'line',
+                    label: {
+                        backgroundColor: '#6a7985'
+                    }
+                }
+            },
+            title: {
+                left: 'center',
+                text: '月新增文章数',
+            },
+            toolbox: {
+                show: true,
+                feature: {
+                    dataZoom: {
+                        yAxisIndex: "none"
+                    },
+                    dataView: {
+                        readOnly: false
+                    },
+                    magicType: {
+                        type: ["line", "新增文章" + "bar"]
+                    },
+                    restore: {},
+                    saveAsImage: {}
+                }
+            },
+            xAxis: {
+                name: '日',
+                type: 'category',
+                boundaryGap: false,
+                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                name: '新增文章',
+                lineStyle: {
+                    color: 'orange'
+                },
+                smooth: 0.6,
+                data: [820, 932, 901, 934, 1290, 1330, 1320],
+                type: 'line',
+                areaStyle: {
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                        offset: 0,
+                        color: '#febf74'
+                    }, {
+                        offset: 1,
+                        color: '#fff'
+                    }])
+                },
+            }]
+        };
+
+
+        // 使用刚指定的配置项和数据显示图表。
+        myChart.setOption(option);
+    </script>
+</body>
+
+</html>

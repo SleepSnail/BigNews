@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="text/javascript" src="./wangEditor.min.js"></script>
+</head>
+<body>
+    <div id="div1">
+        
+    </div>
+
+    <button id="btn1">设置内容</button>
+    <button id="btn2">获取内容</button>
+
+
+    <script type="text/javascript">
+        const E = window.wangEditor
+        const editor = new E('#div1')
+        // 或者 const editor = new E( document.getElementById('div1') )
+        editor.create()
+
+        document.querySelector('#btn1').onclick = function () {
+            editor.txt.html('<p><b>守望先锋</b></p>');
+        };
+
+        document.querySelector('#btn2').onclick = function () {
+            
+            // 获取的内容要打印才会有效果
+            console.log( editor.txt.html());
+        };
+    </script>
+</body>
+</html>

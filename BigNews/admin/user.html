@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>文章列表</title>
+    <link rel="stylesheet" href="./libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="css/iconfont.css">
+    <link rel="stylesheet" href="css/main.css">
+    <script src="./libs/jquery-1.12.4.min.js"></script>
+
+</head>
+
+<body>
+    <div class="container-fluid">
+        <div class="common_title">
+            用户信息修改
+        </div>
+        <div class="container-fluid common_con">
+            <form class="form-horizontal article_form" id="form">
+                <div class="form-group">
+                    <label for="inputEmail1" class="col-sm-2 control-label">用户名称：</label>
+                    <div class="col-sm-4">
+                        <input type="text" name="username" class="form-control username" id="inputEmail1" value="李宗盛">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputEmail2" class="col-sm-2 control-label">昵称：</label>
+                    <div class="col-sm-4">
+                        <input type="text" name="nickname" class="form-control nickname" id="inputEmail2" value="保健坤">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="inputEmail3" class="col-sm-2 control-label">邮箱：</label>
+                    <div class="col-sm-4">
+                        <input type="text" name="email" class="form-control email" id="inputEmail3" value="520@163.com">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="inputPassword3" class="col-sm-2 control-label">用户图标：</label>
+                    <div class="col-sm-10">
+                        <img src="images/2.jpg" alt="" class="user_pic">
+                        <input style="display: none;" name="userPic" type="file" id="exampleInputFile">
+                        <!-- 给label标签的for属性赋值,值是input标签的id,那这样的话点击label就相当于点击了input -->
+                        <br>
+                        <label for="exampleInputFile">
+                            <img src="./images/uploads_icon.jpg" style="height: 50px;" alt="">
+                        </label>
+                    </div>
+                </div>
+
+
+                <div class="form-group">
+                    <label for="inputEmail4" class="col-sm-2 control-label">密码：</label>
+                    <div class="col-sm-4">
+                        <input type="password" name="password" class="form-control password" id="inputEmail4"
+                            value="12345678">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-offset-2 col-sm-10">
+                        <button type="submit" class="btn btn-success btn-edit">修改</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="./libs/http.js"></script>
+    <script>
+        $(function () {
+            // 1. ajax请求渲染之前已经设置好的数据到表单
+            $.ajax({
+                url: BigNew.user_detail,
+                type: 'get',
+                dataType: 'json',
+                success: function (backData) {
+                    console.log(backData);
+                    // 1.1 选中页面元素添加内容
+                    // 方法1 直接选中渲染
+                    $('.user_pic').attr('src', backData.data.userPic);
+                    // $('.username').val(backData.data[username]);
+                    // $('.nickname').val(backData.data[nickname]);
+                    // $('.email').val(backData.data[email]);
+                    // $('.password').val(backData.data[password]);
+                    // 方法2 for遍历渲染
+
+                    for (let key in backData.data) {
+                        $('.' + key).val(backData.data[key]);
+                    };
+
+                }
+            });
+
+
+            // 2. 文件预览
+            //1.给file表单元素注册onchange事件
+            $('#exampleInputFile').change(function () {
+                //1.2 获取用户选择的图片
+                let file = this.files[0];
+                //1.3 将文件转为src路径
+                let url = URL.createObjectURL(file);
+                //1.4 将url路径赋值给img标签的src
+                $('.user_pic').attr('src', url);
+            });
+            console.log(window);
+
+            console.log(window.parent);
+
+
+
+            // 3. 内容提交            
+            $('.btn-edit').on('click', function (e) {
+                //禁用表单默认提交事件
+                e.preventDefault();
+
+                //创建FormData对象：参数是表单dom对象
+                let fd = new FormData($('form')[0]);
+                $.ajax({
+                    url: BigNew.user_edit,
+                    type: 'post',
+                    dataType: 'json',
+                    data: fd,
+
+                    // 禁止
+                    contentType: false,
+                    processData: false,
+
+
+                    success: function (backData) {
+                        if (backData.code == 200) {
+                            alert(backData.msg);
+                        
+                            // 方法1
+                            /*注意点 
+                                 window : 当前窗口  user.html
+                                 window.parent : 父窗口  index.html`
+
+                                 但是 parent是jq的方法
+                            parent.window.location.reload();和
+                            window.location.reload();效果一样
+                                 */
+                            parent.window.location.reload();
+
+
+
+                            // 方法2 
+                            // $.ajax({
+                            //     url: 'http://localhost:8080/api/v1/admin/user/info',
+                            //     type: 'get',
+                            //     dataType: 'json',
+
+                            //     success: function (backData) {
+                            //         console.log(backData);
+                            //         console.log($('.user_info>img', window.parent.document));
+                                   
+                            //         parent.$('.user_info>img').attr('src',
+                            //             backData
+                            //             .data.userPic);
+                            //         parent.$('.user_info>span').text(backData
+                            //             .data
+                            //             .nickname);
+                            //         parent.$('.user_center_link>img').attr(
+                            //             'src',
+                            //             backData.data.userPic);
+                            //     }
+                            // });
+                        } else {
+                            alert(backData.msg);
+                        }
+
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

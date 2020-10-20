@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="./bootstrap/js/jquery-1.12.4.min.js"></script>
+    <!-- <script src="./bootstrap/js/bootstrap.min.js"></script> -->
+    <link rel="stylesheet" href="./bootstrap/css/bootstrap.min.css">
+    <script src="./josecebe-twbs-pagination-5103bc4/jquery.twbsPagination.js"></script>
+
+</head>
+
+<body>
+    <ul id="pagination-demo" class="pagination-sm"></ul>
+    <br>
+    <button class="btn btn-danger">点击筛选</button>
+    <script>
+        $('#pagination-demo').twbsPagination({
+            totalPages: 35,
+            visiblePages: 10,
+            startPage: 5,
+            first: '首页',
+            last: '尾页',
+            prev: '上一页',
+            next: '下一页',
+            loop: true,
+            onPageClick: function (event, page) {
+                $('#page-content').text('Page ' + page);
+            }
+        });
+
+
+        $('.btn-danger').on('click', function () {
+            let num = Math.floor(Math.random() * 100) + 1;
+            $('#pagination-demo').twbsPagination('destroy');
+            $('#pagination-demo').twbsPagination({
+                totalPages: num,
+                visiblePages: 10,
+                startPage: num,
+                first: '首页',
+                last: '尾页',
+                prev: '上一页',
+                next: '下一页',
+                loop: true
+            })
+        });
+    </script>
+</body>
+
+</html>
